@@ -206,19 +206,7 @@ final FcmService _fcmService = FcmService(); // tambahan
           IconButton(
             icon: const Icon(Icons.copy_all),
             tooltip: AppLocalizations.of(context)!.copyFcmToken,
-            onPressed: () async {
-              final token = await FirebaseMessaging.instance.getToken();
-              if (token != null) {
-                await Clipboard.setData(ClipboardData(text: token));
-                if (mounted) {
-                  final dialogL10n = AppLocalizations.of(context)!;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(dialogL10n.fcmTokenCopied)),
-                  );
-                }
-                debugPrint('FCM Token: $token');
-              }
-            },
+            onPressed: _copyFcmToken,
           ),
         ],
         backgroundColor: Colors.deepPurple,
@@ -431,5 +419,18 @@ final FcmService _fcmService = FcmService(); // tambahan
         ],
       ),
     );
+  }
+
+  /// Copy FCM token to clipboard and show localized snackbar
+  Future<void> _copyFcmToken() async {
+    final token = await FirebaseMessaging.instance.getToken();
+    if (token == null) return;
+    await Clipboard.setData(ClipboardData(text: token));
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.fcmTokenCopied)),
+    );
+    debugPrint('FCM Token: $token');
   }
 }
